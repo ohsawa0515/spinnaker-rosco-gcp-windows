@@ -1,0 +1,61 @@
+{
+  "variables": {
+    "gce_project_id": null,
+    "gce_network": null,
+    "gce_subnetwork": "",
+    "gce_zone": null,
+    "gce_service_account_email": "",
+    "gce_source_image_family": "",
+    "gce_source_image_project_id": "",
+    "gce_disk_size": "100",
+    "gce_disk_type": "pd-standard",
+    "gce_machine_type": "n1-standard-1",
+    "gce_use_internal_ip": "true",
+    "gce_omit_external_ip": "true",
+    "appversion": "",
+    "build_host": "",
+    "build_info_url": ""
+  },
+  "builders": [
+    {
+      "type": "googlecompute",
+      "project_id": "{{user `gce_project_id`}}",
+      "source_image_project_id": "{{user `gce_source_image_project_id`}}",
+      "source_image_family": "{{user `gce_source_image_family`}}",
+      "service_account_email": "{{user `gce_service_account_email`}}",
+      "zone": "{{user `gce_zone`}}",
+      "network": "{{user `gce_network`}}",
+      "subnetwork": "{{user `gce_subnetwork`}}",
+      "disk_size": "{{user `gce_disk_size`}}",
+      "disk_type": "{{user `gce_disk_type`}}",
+      "image_description": "appversion: {{user `appversion`}}, build_host: {{user `build_host`}}, build_info_url: {{user `build_info_url`}}",
+      "image_labels": {
+        "app": "{{user `gce_source_image_family`}}"
+      },
+      "image_name": "{{user `gce_source_image_family`}}-{{isotime \"20060102150405\"}}",
+      "image_family": "{{user `gce_source_image_family`}}",
+      "instance_name": "packer-{{user `gce_source_image_family`}}-{{isotime \"20060102150405\"}}",
+      "labels": {
+        "app": "{{user `gce_source_image_family`}}"
+      },
+      "machine_type": "{{user `gce_machine_type`}}",
+      "state_timeout": "15m",
+      "use_internal_ip": "{{user `gce_use_internal_ip`}}",
+      "omit_external_ip": "{{user `gce_omit_external_ip`}}",
+      "communicator": "winrm",
+      "winrm_username": "packer",
+      "winrm_insecure": true,
+      "winrm_use_ssl": false,
+      "startup_script_file": "{{user `configDir`}}/scripts/windows_startup_gce.ps1"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "powershell",
+      "inline": [
+        "& \"C:\\Program files\\Google\\Compute Engine\\sysprep\\gcesysprep\""
+      ]
+    }
+  ]
+}
+
